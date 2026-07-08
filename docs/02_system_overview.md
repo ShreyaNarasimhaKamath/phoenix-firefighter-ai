@@ -168,3 +168,7 @@ PHOENIX introduces a hierarchical distributed AI architecture in which every com
 - Arduino → Safety Intelligence
 
 Rather than maximizing AI performance on a single device, PHOENIX maximizes operational resilience by ensuring that critical AI assistance remains available despite progressive loss of connectivity or computing resources.
+
+
+<img width="547" height="586" alt="image" src="https://github.com/user-attachments/assets/1b395cbe-c12c-46ac-a4c3-f0be5c609402" />
+
