@@ -51,22 +51,8 @@ This hierarchical organization eliminates single points of failure and improves 
 
 # 3.3 Intelligence Hierarchy
 
-```text
-                 Mission Intelligence
-                Qualcomm AI Cloud
-                        │
-                        ▼
-            Collective Intelligence
-          Snapdragon X Elite AI PC
-                        │
-                        ▼
-              Local Intelligence
-          Snapdragon Smartphones
-                        │
-                        ▼
-             Safety Intelligence
-               Arduino UNO Q
-```
+<img width="295" height="647" alt="image" src="https://github.com/user-attachments/assets/f05e2782-47f0-41d6-b0d9-3ff63ed256e3" />
+
 
 The hierarchy represents increasing proximity to the firefighter while decreasing scope of awareness.
 
