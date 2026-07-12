@@ -4,6 +4,7 @@
 
 Firefighters operating inside burning buildings face a severe loss of situational awareness due to smoke, heat, structural damage, and unreliable communication. Traditional navigation systems such as GPS become unavailable indoors, while radio communication often degrades as firefighters move deeper into the structure.
 
+
 As a result, firefighters must simultaneously:
 - Navigate unfamiliar buildings
 - Search for victims
