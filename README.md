@@ -82,7 +82,7 @@ It collects telemetry and AI inferences from multiple firefighters to provide:
 | **R Janaki** | janaki2005.r@gmail.com |
 | **R Sameeksha** | sameeksharamesh2005@gmail.com |
 | **E Abijay** | 05.abijay.e@gmail.com |
-| **G R Shivaranjani** | shivaranjani.gr2023@vitstudent.ac.in |
+| **G R Shivaranjani** | ranjani.gr.1105@gmail.com |
 
 ---
 
