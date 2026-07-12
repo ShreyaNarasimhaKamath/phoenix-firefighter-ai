@@ -67,13 +67,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Stage non-standard sketch folder
+      - name: Stage sketches needing normalization
         run: |
           # simple/sketch.ino doesn't match its folder name; arduino-cli
           # requires <folder>/<folder>.ino, so stage a compliant copy.
           mkdir -p .ci/simple_firefighter
           cp frontend/fall_detection_unoq/simple/sketch.ino \
              .ci/simple_firefighter/simple_firefighter.ino
+          # adxl345_test has an App Lab sketch.yaml whose default profile
+          # (empty fqbn, no Arduino_RouterBridge) overrides this workflow's
+          # settings. Stage the .ino alone so it compiles like the others.
+          mkdir -p .ci/adxl345_test
+          cp arduino/adxl345_test/adxl345_test/sketch/sketch.ino \
+             .ci/adxl345_test/adxl345_test.ino
 
       - name: Compile sketches for arduino:zephyr:unoq
         uses: arduino/compile-sketches@v1
@@ -88,7 +94,7 @@ jobs:
             - name: Adafruit BusIO
             - name: DHT sensor library
           sketch-paths: |
-            - arduino/adxl345_test/adxl345_test/sketch
+            - .ci/adxl345_test
             - frontend/fall_detection_unoq/sketch
             - .ci/simple_firefighter
           enable-warnings-report: true
