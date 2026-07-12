@@ -6,7 +6,7 @@ The system uses **three intelligent edge AI nodes** that perform real-time local
 
 ---
 
-#  ~ Application Description ~
+# 📷 ~ Application Description ~
 
 Phoenix Firefighter Assistant consists of three cooperating edge devices:
 
@@ -85,3 +85,6 @@ It collects telemetry and AI inferences from multiple firefighters to provide:
 | **G R Shivaranjani** | shivaranjani.gr2023@vitstudent.ac.in |
 
 ---
+
+
+
