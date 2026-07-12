@@ -118,16 +118,17 @@ jobs:
             echo "No .ino sketches found, skipping."
           fi
 
-      - name: Install arduino-cli
-        if: steps.check.outputs.found == 'true'
-        uses: arduino/setup-arduino-cli@v2
-
       - name: Compile sketches
         if: steps.check.outputs.found == 'true'
-        run: |
-          arduino-cli core update-index
-          arduino-cli core install arduino:avr
-          for sketch in $(find arduino -name "*.ino" -exec dirname {} \; | sort -u); do
-            echo "Compiling $sketch"
-            arduino-cli compile --fqbn arduino:avr:uno "$sketch" || exit 1
-          done
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: arduino:avr:uno
+          platforms: |
+            - name: arduino:avr
+          libraries: |
+            - name: DHT sensor library
+            - name: Adafruit ADXL345
+            - name: Adafruit Unified Sensor
+            - name: Adafruit BusIO
+          sketch-paths: |
+            - arduino
