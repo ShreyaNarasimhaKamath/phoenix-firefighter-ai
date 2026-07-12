@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+build/
+.kotlin/
+.gradle/
+*.jks
+ai_pc_link/events.jsonl

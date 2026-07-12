@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Emergency monitor theme -->
+    <color name="bg_dark">#0F1115</color>
+    <color name="card_dark">#1A1D24</color>
+    <color name="text_primary">#F5F7FA</color>
+    <color name="text_secondary">#8B93A3</color>
+    <color name="accent_green">#4ADE80</color>
+    <color name="severity_critical">#EF4444</color>
+    <color name="severity_high">#F97316</color>
+    <color name="severity_medium">#FACC15</color>
+</resources>
