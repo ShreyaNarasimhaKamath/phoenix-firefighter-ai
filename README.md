@@ -1,4 +1,4 @@
-#  Phoenix Firefighter Assistant
+#  PHOENIX FIREFIGHTER ASSISTANT
 
 Phoenix Firefighter Assistant is an **Edge AI-powered firefighting assistance system** designed to improve firefighter safety and assist in victim rescue during emergency response operations.
 
@@ -10,7 +10,7 @@ The system uses **three intelligent edge AI nodes** that perform real-time local
 
 Phoenix Firefighter Assistant consists of three cooperating edge devices:
 
-## 📱 1. Mobile Phone – Victim Detection
+##  1. Mobile Phone – Victim Detection
 
 The mobile phone accompanies the firefighter throughout the rescue mission and serves as their **eyes and ears** in smoke-filled or low-visibility environments.
 
