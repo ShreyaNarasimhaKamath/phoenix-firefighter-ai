@@ -179,7 +179,80 @@ curl -X POST http://localhost:5000/event -H "Content-Type: application/json" \
 ```
 
 ---
+# 🛠️ ~ Setup Instructions (from scratch) ~
 
+## Prerequisites
+
+- **Snapdragon AI PC** (Copilot+ PC) with Python 3.10+ and Git
+- **Android phone** (Android 7.0+) and Android Studio (latest) on any dev machine
+- **Arduino UNO Q** with [Arduino App Lab](https://docs.arduino.cc/hardware/uno-q/), plus sensors: ADXL345 accelerometer, MQ-2 gas sensor, DHT11 temperature sensor
+- All devices on the **same Wi-Fi network** (tip: use the phone's hotspot — venue Wi-Fi often blocks device-to-device traffic)
+
+```bash
+git clone https://github.com/ShreyaNarasimhaKamath/phoenix-firefighter-ai.git
+cd phoenix-firefighter-ai
+```
+
+## 1. Snapdragon AI PC — command node
+
+```bash
+pip install flask
+python frontend/ai_pc_link/server.py
+```
+
+- Open the live dashboard at **http://localhost:5000**
+- Find the PC's IP with `ipconfig` (IPv4 Address, e.g. `192.168.1.42`) — the phone and UNO Q will send events to this IP
+- If prompted by Windows Firewall, click **Allow** (port 5000)
+
+## 2. Mobile phone — victim detection app
+
+1. Open the `frontend/` folder in Android Studio
+2. Set the AI PC's IP in `PC_BASE_URL` inside
+   `frontend/app/src/main/java/com/example/soundclassifier/net/EventSender.kt`
+3. Build & install: **Run ▶** on a connected phone, or `./gradlew :app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk`
+4. Grant **camera** and **microphone** permissions on first launch
+
+> Shortcut: a pre-built debug APK is attached to every green CI run — repo **Actions** tab → latest run → artifact `soundclassifier-debug-apk`.
+
+## 3. Arduino UNO Q — firefighter safety node
+
+**Wiring:**
+
+| Sensor | Connection |
+|--------|------------|
+| ADXL345 (I2C) | VCC→3.3V, GND→GND, SDA→A4, SCL→A5, CS→3.3V, SDO→GND |
+| MQ-2 gas | Analog out → A0 |
+| DHT11 temp | Data → D2 |
+
+**App Lab setup (once):**
+
+1. Open App Lab on the UNO Q and create/open the fall-detection app
+2. Use `arduino/adxl345_test/adxl345_test/sketch/sketch.ino` as the sketch and `arduino/adxl345_test/adxl345_test/python/main.py` as the Python file
+3. **Add sketch library** (book+ icon) → install **Arduino_RouterBridge**, **Adafruit ADXL345**, **Adafruit Unified Sensor**, **Adafruit BusIO**, **DHT sensor library**
+4. Copy the model to the board and install Python deps:
+
+```bash
+scp arduino/adxl345_test/adxl345_test/python/fall_detection_model.pkl <user>@<unoq-ip>:~/
+pip3 install scikit-learn numpy joblib --break-system-packages
+```
+
+---
+
+# ▶️ ~ Run & Usage ~
+
+Start in this order:
+
+1. **AI PC**: `python frontend/ai_pc_link/server.py` → dashboard at http://localhost:5000
+2. **UNO Q**: click **Run** in App Lab. Console shows `Model loaded: RandomForestClassifier` then live predictions (~2 s for the sample window to fill)
+3. **Phone**: launch the SoundClassifier app
+
+**What you'll see:**
+
+- Phone detects emergency sounds (screams, cries for help) + people via camera, shows severity and estimated distance, and POSTs events to the PC
+- UNO Q prints `*** FALL DETECTED ***` and lights the on-board LED on a fall; gas/heat warnings from MQ-2/DHT11 thresholds
+- The PC dashboard shows all incoming events live (also logged to `events.jsonl`)
+
+**Quick connectivity test:** open `http://<PC_IP>:5000` in the phone's browser — the dashboard should load. If not: same Wi-Fi? correct IP? firewall?
 # 📚 ~ References ~
 
 - [YAMNet](https://www.tensorflow.org/hub/tutorials/yamnet) — audio event classification (TFLite)
