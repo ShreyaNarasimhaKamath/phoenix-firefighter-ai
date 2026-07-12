@@ -7,128 +7,123 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # ---------- Python components: ai, backend, cloud, models, maps ----------
-  python-build:
-    name: Build ${{ matrix.component }} (Python)
+  # ---------------------------------------------------------------
+  # Android app (frontend/ — SoundClassifier, Kotlin + AGP 9)
+  # ---------------------------------------------------------------
+  android-app:
+    name: Android app (frontend)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        component: [ai, backend, cloud, models, maps]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check for Python code
-        id: check
-        run: |
-          if ls ${{ matrix.component }}/*.py >/dev/null 2>&1 || find ${{ matrix.component }} -name "*.py" | grep -q .; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "No Python files in ${{ matrix.component }}, skipping."
-          fi
-
-      - uses: actions/setup-python@v5
-        if: steps.check.outputs.found == 'true'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: '**/requirements.txt'
+          distribution: temurin
+          java-version: '21'
 
-      - name: Install dependencies
-        if: steps.check.outputs.found == 'true'
+      - name: Set up Gradle (with build cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare CI environment
         run: |
-          python -m pip install --upgrade pip
-          if [ -f "${{ matrix.component }}/requirements.txt" ]; then
-            pip install -r "${{ matrix.component }}/requirements.txt"
-          elif [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          fi
+          # local.properties points at a Windows SDK path — must not exist on CI
+          rm -f frontend/local.properties
+          chmod +x frontend/gradlew
 
-      - name: Syntax check (compile all Python files)
-        if: steps.check.outputs.found == 'true'
-        run: python -m compileall -q ${{ matrix.component }}
-
-  # ---------- Web components: frontend, dashboard ----------
-  web-build:
-    name: Build ${{ matrix.component }} (Web)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        component: [frontend, dashboard]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Detect project type
-        id: detect
+      - name: Prepare Android SDK
         run: |
-          if [ -f "${{ matrix.component }}/package.json" ]; then
-            echo "type=node" >> "$GITHUB_OUTPUT"
-          elif ls ${{ matrix.component }}/*.html >/dev/null 2>&1; then
-            echo "type=static" >> "$GITHUB_OUTPUT"
-          else
-            echo "type=none" >> "$GITHUB_OUTPUT"
-            echo "No web project in ${{ matrix.component }}, skipping."
-          fi
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          # compileSdk 36.1 — pre-install if available; AGP auto-downloads otherwise
+          "$SDKMANAGER" "platforms;android-36.1" > /dev/null 2>&1 || true
 
-      - uses: actions/setup-node@v4
-        if: steps.detect.outputs.type == 'node'
-        with:
-          node-version: '20'
+      - name: Build debug APK
+        working-directory: frontend
+        run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Install and build (Node)
-        if: steps.detect.outputs.type == 'node'
-        working-directory: ${{ matrix.component }}
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-          npm run build --if-present
+      - name: Run unit tests
+        working-directory: frontend
+        run: ./gradlew :app:testDebugUnitTest --stacktrace
 
-      - name: Validate HTML (static site)
-        if: steps.detect.outputs.type == 'static'
-        run: |
-          echo "Static site detected — listing files:"
-          find ${{ matrix.component }} -name "*.html" -o -name "*.js" -o -name "*.css" | head -50
-
-      - name: Upload build artifact
-        if: steps.detect.outputs.type == 'node'
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.component }}-build
-          path: |
-            ${{ matrix.component }}/dist
-            ${{ matrix.component }}/build
-          if-no-files-found: ignore
+          name: soundclassifier-debug-apk
+          path: frontend/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
-  # ---------- Arduino UNO Q sketch ----------
-  arduino-build:
-    name: Compile Arduino sketch
+  # ---------------------------------------------------------------
+  # Arduino UNO Q sketches (STM32U585 MCU, arduino:zephyr core)
+  # ---------------------------------------------------------------
+  arduino-sketches:
+    name: Arduino UNO Q sketches
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check for sketches
-        id: check
+      - name: Stage non-standard sketch folder
         run: |
-          if find arduino -name "*.ino" | grep -q .; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "No .ino sketches found, skipping."
-          fi
+          # simple/sketch.ino doesn't match its folder name; arduino-cli
+          # requires <folder>/<folder>.ino, so stage a compliant copy.
+          mkdir -p .ci/simple_firefighter
+          cp frontend/fall_detection_unoq/simple/sketch.ino \
+             .ci/simple_firefighter/simple_firefighter.ino
 
-      - name: Compile sketches
-        if: steps.check.outputs.found == 'true'
+      - name: Compile sketches for arduino:zephyr:unoq
         uses: arduino/compile-sketches@v1
         with:
-          fqbn: arduino:avr:uno
+          fqbn: arduino:zephyr:unoq
           platforms: |
-            - name: arduino:avr
+            - name: arduino:zephyr
           libraries: |
-            - name: DHT sensor library
+            - name: Arduino_RouterBridge
             - name: Adafruit ADXL345
             - name: Adafruit Unified Sensor
             - name: Adafruit BusIO
+            - name: DHT sensor library
           sketch-paths: |
-            - arduino
+            - arduino/adxl345_test/adxl345_test/sketch
+            - frontend/fall_detection_unoq/sketch
+            - .ci/simple_firefighter
+          enable-warnings-report: true
+
+  # ---------------------------------------------------------------
+  # Python (UNO Q bridge scripts, AI-PC servers, fall detection)
+  # ---------------------------------------------------------------
+  python-code:
+    name: Python components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: '**/requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          find . -name requirements.txt -not -path './.git/*' \
+            -exec pip install -r {} \;
+
+      - name: Syntax check (all tracked Python files)
+        run: python -m compileall -q $(git ls-files '*.py')
+
+  # ---------------------------------------------------------------
+  # Gate: everything must be green
+  # ---------------------------------------------------------------
+  build-ok:
+    name: All builds passed
+    needs: [android-app, arduino-sketches, python-code]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All components built with 0 errors."
