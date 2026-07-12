@@ -1,4 +1,4 @@
-# 😀 adxl345_test
+#  adxl345_test
 
 
 
