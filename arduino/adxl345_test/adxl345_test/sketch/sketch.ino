@@ -44,7 +44,7 @@ void set_alert(int on) {
 
 // Python pushes each status line (model result + decision) here
 // so it also shows in the Serial Monitor.
-void show_status(const char* msg) {
+void show_status(String msg) {
   Monitor.println(msg);
 }
 
