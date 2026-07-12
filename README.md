@@ -1,4 +1,4 @@
-# 🔥 Phoenix Firefighter Assistant
+#  Phoenix Firefighter Assistant
 
 Phoenix Firefighter Assistant is an **Edge AI-powered firefighting assistance system** designed to improve firefighter safety and assist in victim rescue during emergency response operations.
 
@@ -6,7 +6,7 @@ The system uses **three intelligent edge AI nodes** that perform real-time local
 
 ---
 
-# 📖 Application Description
+#  Application Description
 
 Phoenix Firefighter Assistant consists of three cooperating edge devices:
 
@@ -25,7 +25,7 @@ All inference is performed **entirely on-device**, ensuring low latency and oper
 
 ---
 
-## 🟦 2. Arduino UNO Q – Environmental & Firefighter Safety
+##  2. Arduino UNO Q – Environmental & Firefighter Safety
 
 The Arduino UNO Q continuously monitors environmental and firefighter conditions using onboard sensors.
 
@@ -46,7 +46,7 @@ The processed telemetry is transmitted over Wi-Fi to the Snapdragon AI PC.
 
 ---
 
-## 💻 3. Snapdragon AI PC – Mission Intelligence
+##  3. Snapdragon AI PC – Mission Intelligence
 
 The Snapdragon AI PC acts as the central command node.
 
@@ -60,7 +60,7 @@ It collects telemetry and AI inferences from multiple firefighters to provide:
 
 ---
 
-# 🚀 Features
+#  Features
 
 - Edge AI inference on all devices
 - Cloud-independent operation
@@ -73,11 +73,6 @@ It collects telemetry and AI inferences from multiple firefighters to provide:
 
 ---
 
-# 🚧 Project Status
-
-Phoenix Firefighter Assistant is currently under active development. Individual Edge AI modules are being integrated into a collaborative multi-device firefighting assistance system capable of assisting firefighters during real-world rescue operations.
-
----
 
 # 👥 Contributors
 
