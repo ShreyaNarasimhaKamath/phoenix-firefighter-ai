@@ -86,5 +86,4 @@ It collects telemetry and AI inferences from multiple firefighters to provide:
 
 ---
 
-
-
+# ðŸ
